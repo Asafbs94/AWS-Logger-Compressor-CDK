@@ -39,20 +39,29 @@ class LogReceiverStack(Stack):
         log_receiver_lambda.add_environment("UNCOMPRESSED_S3_BUCKET_NAME", uncompressed_bucket.bucket_name)
         log_receiver_lambda.add_environment("COMPRESSED_S3_BUCKET_NAME", compressed_bucket.bucket_name)
 
-                # Create the CompressLambda function
-        compress_lambda = _lambda.Function(
+
+        # Create the CompressLambda function
+        CompressLambda = _lambda.Function(
             self, "CompressLambda",
             runtime=_lambda.Runtime.PYTHON_3_8,
+            function_name="CompressLambda922D65A6",
             handler="lambda_handler.compress_lambda_handler",
             code=_lambda.Code.from_asset(r"C:\Users\asafb\Desktop\AWS_Assignment\lambda"),
             timeout=Duration.seconds(30)
         )
+        compress_lambda_arn = CompressLambda.function_arn
           # Grant necessary permissions to CompressLambda function
-        compress_lambda.add_to_role_policy(iam.PolicyStatement(
+        CompressLambda.add_to_role_policy(iam.PolicyStatement(
             actions=["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
             resources=["*"]
         ))
-        compressed_bucket.grant_put(compress_lambda)  # Grant permission to put objects in the compressed bucket
+        log_receiver_lambda.add_to_role_policy(iam.PolicyStatement(
+            actions=["lambda:InvokeFunction"],
+            resources=[compress_lambda_arn]
+         ))
+            
+
+        compressed_bucket.grant_put(CompressLambda)  # Grant permission to put objects in the compressed bucket
 
         # API Gateway
         api = apigateway.RestApi(

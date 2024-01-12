@@ -4,13 +4,12 @@ import boto3
 import os
 
 s3_client = boto3.client("s3")
+lambda_client = boto3.client("lambda")
 
 def lambda_handler(event, context):
     try:
         # Extracting request body
-        request_body = json.loads(event["body"])
-
-        # Process log content (modify this part based on your actual processing logic)
+        request_body = get_request_body(event)
 
         # Store uncompressed log content in the first S3 bucket
         uncompressed_bucket_name = os.environ.get("UNCOMPRESSED_S3_BUCKET_NAME")
@@ -34,25 +33,32 @@ def lambda_handler(event, context):
             "body": json.dumps({"error": "Internal Server Error"})
         }
 
+def get_request_body(event):
+    # Helper function to safely get the request body from the event
+    return json.loads(event.get("body", "{}"))
+
 def trigger_compress_lambda(log_content, request_id):
-    client = boto3.client("lambda")
+    try:
+        payload = {
+            "body": json.dumps(log_content),
+            "request_id": request_id
+        }
 
-    payload = {
-        "body": json.dumps(log_content),
-        "request_id": request_id
-    }
+        # Trigger the CompressLambda function asynchronously
+        lambda_client.invoke(
+            FunctionName="CompressLambda",
+            InvocationType="Event",
+            Payload=json.dumps(payload)
+        )
 
-    response = client.invoke(
-        FunctionName="CompressLambda",
-        InvocationType="Event",
-        Payload=json.dumps(payload)
-    )
+    except Exception as e:
+        print(f"Error triggering CompressLambda: {str(e)}")
 
 def compress_lambda_handler(event, context):
     try:
         # Extracting request body
-        request_body = json.loads(event["body"])
-        request_id = event["request_id"]
+        request_body = get_request_body(event)
+        request_id = event.get("request_id", "")
 
         # Compress log content
         compressed_content = gzip.compress(json.dumps(request_body, indent=2).encode("utf-8"))
