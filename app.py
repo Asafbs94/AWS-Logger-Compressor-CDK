@@ -3,10 +3,12 @@ from aws_cdk import App, Stack,Duration
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_lambda as _lambda
 from aws_cdk import aws_apigateway as apigateway
+from aws_cdk import aws_s3 as s3
 import os
 import aws_cdk as cdk
 
 from aws_assignment.aws_assignment_stack import AwsAssignmentStack
+
 class LogReceiverStack(Stack):
 
     def __init__(self, scope: Construct, id: str, **kwargs) -> None:
@@ -26,6 +28,10 @@ class LogReceiverStack(Stack):
             actions=["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
             resources=["*"]
         ))
+        
+        log_bucket = s3.Bucket(self, "LogBucket")
+        log_bucket.grant_put(log_receiver_lambda)
+        log_receiver_lambda.add_environment("S3_BUCKET_NAME", log_bucket.bucket_name)
 
         # API Gateway
         api = apigateway.RestApi(
