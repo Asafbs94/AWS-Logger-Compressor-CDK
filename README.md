@@ -1,58 +1,57 @@
+# AWS Log Processor with Fun Lambdas! 🚀
 
-# Welcome to your CDK Python project!
+Welcome to the AWS Log Processor project! This project demonstrates two Lambda functions for processing and managing log files in an AWS environment. 🌐📊
 
-This is a blank project for Python development with CDK.
+## Log Receiver Lambda (`LogReceiverLambda`)
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+The `LogReceiverLambda` function is responsible for receiving incoming log file content via HTTP POST requests and storing it in two separate S3 buckets: one for uncompressed log files and another for compressed log files.
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
+### Features:
+- 📥 Handles incoming log file content.
+- 🗃 Stores uncompressed log files in the first S3 bucket.
+- 🔄 Triggers the `CompressLambda` function to compress and store log files in the second S3 bucket.
 
-To manually create a virtualenv on MacOS and Linux:
+### How It Works:
+1. **Receive Log Content:**
+   - Listens for HTTP POST requests containing log file content.
+   - Stores uncompressed log content in the first S3 bucket.
 
-```
-$ python -m venv .venv
-```
+2. **Compression (Async):**
+   - Asynchronously triggers the `CompressLambda` function to compress log content.
+   - Compressed log content is stored in the second S3 bucket.
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+### Environment Variables:
+- `UNCOMPRESSED_S3_BUCKET_NAME`: Name of the bucket for storing uncompressed log files.
+- `COMPRESSED_S3_BUCKET_NAME`: Name of the bucket for storing compressed log files.
 
-```
-$ source .venv/bin/activate
-```
+## Compress Lambda (`CompressLambda`)
 
-If you are a Windows platform, you would activate the virtualenv like this:
+The `CompressLambda` function is triggered asynchronously by `LogReceiverLambda`. Its sole purpose is to compress log content and store it in a dedicated S3 bucket.
 
-```
-% .venv\Scripts\activate.bat
-```
+### Features:
+- 🗜 Compresses log content.
+- 🗃 Stores compressed log files in a designated S3 bucket.
 
-Once the virtualenv is activated, you can install the required dependencies.
+### How It Works:
+1. **Receive Trigger:**
+   - Triggered by `LogReceiverLambda` with log content and request ID.
 
-```
-$ pip install -r requirements.txt
-```
+2. **Compression:**
+   - Compresses the received log content.
+   - Stores compressed log content in the second S3 bucket.
 
-At this point you can now synthesize the CloudFormation template for this code.
+### Environment Variables:
+- None.
 
-```
-$ cdk synth
-```
+## How to Build and Deploy
 
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
+### Prerequisites:
+- [AWS CLI](https://aws.amazon.com/cli/)
+- [AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html)
 
-## Useful commands
+### Steps:
 
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
-
-Enjoy!
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/your-username/aws-log-processor.git
+   cd aws-log-processor
