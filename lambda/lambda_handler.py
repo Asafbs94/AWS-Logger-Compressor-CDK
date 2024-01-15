@@ -24,7 +24,7 @@ def lambda_handler(event, context):
         # Return a success response
         return {
             "statusCode": 200,
-            "body": json.dumps({"message": "Log content received and stored uncompressed successfully"})
+            "body": json.dumps({"message": "Log content received and stored uncompressed & compressed successfully"})
         }
 
     except Exception as e:
@@ -71,7 +71,6 @@ def compress_lambda_handler(event, context):
 
         # Convert the string to bytes before compressing
         request_body_bytes = request_body_str_letters_only.encode("utf-8")
-        print("Type of request_body_bytes:", type(request_body_bytes))
 
         # Compress log content
         compressed_content = bytes(gzip.compress(request_body_bytes))
