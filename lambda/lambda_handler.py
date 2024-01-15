@@ -4,7 +4,6 @@ import boto3
 import os
 import re
 import base64
-import traceback
 
 s3_client = boto3.client("s3")
 lambda_client = boto3.client("lambda")
@@ -56,6 +55,8 @@ def trigger_compress_lambda(log_content, request_id):
 
     except Exception as e:
         print(f"Error triggering CompressLambda: {str(e)}")
+
+
 def compress_lambda_handler(event, context):
     try:
         # Extracting request body
@@ -82,12 +83,8 @@ def compress_lambda_handler(event, context):
             s3_client.put_object(Bucket=compressed_bucket_name, Key=str(compressed_key), Body=compressed_content)
             print(f"Log content compressed and stored successfully in {compressed_bucket_name}/{compressed_key}")
         except Exception as storage_error:
-            print(f"bucket name : {compressed_bucket_name}")
             print(f"Error storing compressed log content: {str(storage_error)}")
-            print(f"Type of compressed_bucket_name: {type(compressed_bucket_name)}")
-            print(f"Type of compressed_key: {type(compressed_key)}")
-            print(f"Type of compressed_content: {type(compressed_content)}")
 
 
     except Exception as e:
-        print(f"Error !!: {str(e)}")
+        print(f"Lambda process error: {str(e)}")

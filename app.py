@@ -6,7 +6,6 @@ from aws_cdk import aws_apigateway as apigateway
 from aws_cdk import aws_s3 as s3
 import os
 import aws_cdk as cdk
-
 from aws_assignment.aws_assignment_stack import AwsAssignmentStack
 
 class LogReceiverStack(Stack):
@@ -18,8 +17,8 @@ class LogReceiverStack(Stack):
         log_receiver_lambda = _lambda.Function(
             self, "LogReceiverLambda",
             runtime=_lambda.Runtime.PYTHON_3_8,
-            handler="lambda_handler.lambda_handler",  # Correct handler format
-            code=_lambda.Code.from_asset(r"C:\Users\asafb\Desktop\AWS_Assignment\lambda"),
+            handler="lambda_handler.lambda_handler",
+            code=_lambda.Code.from_asset(r"lambda"),
             timeout=Duration.seconds(30)
         )
 
@@ -46,7 +45,7 @@ class LogReceiverStack(Stack):
             runtime=_lambda.Runtime.PYTHON_3_8,
             function_name="CompressLambda922D65A6",
             handler="lambda_handler.compress_lambda_handler",
-            code=_lambda.Code.from_asset(r"C:\Users\asafb\Desktop\AWS_Assignment\lambda"),
+            code=_lambda.Code.from_asset(r"lambda"),
             timeout=Duration.seconds(30)
         )
         compress_lambda_arn = CompressLambda.function_arn
