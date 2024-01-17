@@ -15,8 +15,8 @@ class TestLogReceiverAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         request_id = response.json().get("request_id", "")
         time.sleep(5)
-        compressed_bucket_name = "logreceiverstack-compressedlogbucket0653d0ce-hwe6rhxknd9p"
-        compressed_key = f"logs/{request_id}.json.gz"
+        compressed_bucket_name = "arn:aws:s3:us-east-1:718403194491:accesspoint/accessuncompressed"
+        compressed_key = f"logs/{request_id}.json"
         try:
             response = self.s3_client.get_object(Bucket=compressed_bucket_name, Key=compressed_key)
             compressed_content = response["Body"].read()

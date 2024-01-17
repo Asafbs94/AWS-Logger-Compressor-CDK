@@ -17,15 +17,14 @@ def lambda_handler(event, context):
         uncompressed_bucket_name = 'arn:aws:s3:us-east-1:718403194491:accesspoint/accessuncompressed'
         uncompressed_key = f"logs/{context.aws_request_id}.json"
         s3_client.put_object(Bucket=uncompressed_bucket_name, Key=uncompressed_key, Body=json.dumps(request_body, indent=2))
-
         # Trigger the CompressLambda function for compressing log content
         trigger_compress_lambda(request_body, context.aws_request_id)
-
         # Return a success response
         return {
-            "statusCode": 200,
-            "body": json.dumps({"message": "Log content received and stored uncompressed & compressed successfully"})
-        }
+                "statusCode": 200,
+                "body": json.dumps({"message": "Log content received and stored uncompressed & compressed successfully",
+                        "request_id": str(context.aws_request_id)})
+}
 
     except Exception as e:
         # Return an error response if any exception occurs
